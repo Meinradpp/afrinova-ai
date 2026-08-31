@@ -107,8 +107,7 @@ export default function WorkspaceScreen({ onOpenDesign, onNewDesign }: Props) {
                   {d.template_type.replace('_', ' ')} · {d.canvas_data?.elements?.length ?? 0} {t('workspace.layers')}
                 </p>
                 <p className="text-[10px] text-cream/30 flex items-center gap-1 mt-1">
-                  <Clock className="w-3 h-3" /> {fmtDate(d.updated_at)}
-                </p>
+                  <Clock className="w-3 h-3" /> {fmtDate(d.updated_at ?? d.created_at ?? new Date().toISOString())}                </p>
               </div>
               <button
                 onClick={(e) => { e.stopPropagation(); del(d.id); }}

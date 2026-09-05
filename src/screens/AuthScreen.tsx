@@ -74,6 +74,18 @@ export default function AuthScreen() {
     }
   };
 
+  const continueAsGuest = async () => {
+    setError(null);
+    setLoading(true);
+    try {
+      const { error } = await supabase.auth.signInAnonymously();
+      if (error) throw error;
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Unable to continue as guest.');
+      setLoading(false);
+    }
+  };
+
   const currentLang = LANGUAGES.find((l) => l.code === lang);
 
   return (
@@ -238,6 +250,14 @@ export default function AuthScreen() {
         </form>
 
         <button
+          onClick={continueAsGuest}
+          disabled={loading}
+          className="w-full glass border border-cream/10 rounded-2xl py-3.5 flex items-center justify-center gap-2 text-cream/70 font-semibold text-[14px] active:scale-[0.98] transition disabled:opacity-60"
+        >
+          Continuer sans compte
+        </button>
+
+        <button
           onClick={() => setShowDownload(true)}
           className="w-full glass border border-gold/20 rounded-2xl py-3.5 flex items-center justify-center gap-2 text-gold font-semibold text-[14px] active:scale-[0.98] transition animate-fade-in"
         >
@@ -260,4 +280,4 @@ export default function AuthScreen() {
       {showDownload && <DownloadScreen onClose={() => setShowDownload(false)} />}
     </div>
   );
-}
+    }

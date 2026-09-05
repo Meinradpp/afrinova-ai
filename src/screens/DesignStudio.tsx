@@ -5,7 +5,7 @@ import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth';
 import {
   Type, Square, Circle, Minus, Trash2, Save, Plus, ChevronLeft,
-  Bold, AlignLeft, AlignCenter, AlignRight, Download, Layers, Palette,
+  Bold, AlignLeft, AlignCenter, AlignRight, Download, Layers, Palette, Lock,
 } from 'lucide-react';
 
 const CANVAS_W = 300;
@@ -21,6 +21,7 @@ type Props = {
 
 export default function DesignStudio({ initialDesign, onBack }: Props) {
   const { user } = useAuth();
+  const isGuest = user?.is_anonymous === true;
   const [data, setData] = useState<CanvasData>(() =>
     initialDesign?.canvas_data ?? TEMPLATES.blank.data
   );
@@ -32,6 +33,7 @@ export default function DesignStudio({ initialDesign, onBack }: Props) {
   const [saving, setSaving] = useState(false);
   const [savedMsg, setSavedMsg] = useState<string | null>(null);
   const [editingText, setEditingText] = useState(false);
+  const [guestMsg, setGuestMsg] = useState<string | null>(null);
   const dragRef = useRef<{ id: string; offsetX: number; offsetY: number } | null>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
 
@@ -145,6 +147,11 @@ export default function DesignStudio({ initialDesign, onBack }: Props) {
   };
 
   const exportPng = () => {
+    if (isGuest) {
+      setGuestMsg('Créez un compte gratuit pour télécharger votre création');
+      setTimeout(() => setGuestMsg(null), 3000);
+      return;
+    }
     // Lightweight export: serialize canvas as SVG and trigger download
     const els = data.elements.map((el) => {
       if (el.type === 'shape') {
@@ -192,6 +199,13 @@ export default function DesignStudio({ initialDesign, onBack }: Props) {
           <Save className="w-4 h-4 text-emerald-deep" strokeWidth={2.5} />
         </button>
       </div>
+
+      {guestMsg && (
+        <div className="mx-4 mt-3 text-[13px] text-gold bg-gold/10 border border-gold/25 rounded-xl px-4 py-3 flex items-center gap-2 animate-fade-in">
+          <Lock className="w-4 h-4 shrink-0" />
+          {guestMsg}
+        </div>
+      )}
 
       {/* Canvas area */}
       <div className="flex-1 overflow-y-auto no-scrollbar flex flex-col items-center px-4 py-4">
@@ -291,7 +305,7 @@ export default function DesignStudio({ initialDesign, onBack }: Props) {
             { icon: Square, label: 'Rect', fn: () => addShape('rect') },
             { icon: Circle, label: 'Circle', fn: () => addShape('circle') },
             { icon: Minus, label: 'Line', fn: () => addShape('line') },
-            { icon: Download, label: 'Export', fn: exportPng },
+            { icon: isGuest ? Lock : Download, label: 'Export', fn: exportPng },
           ].map((b) => {
             const Icon = b.icon;
             return (
@@ -435,4 +449,4 @@ export default function DesignStudio({ initialDesign, onBack }: Props) {
       )}
     </div>
   );
-}
+                    }
